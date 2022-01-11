@@ -1,4 +1,14 @@
-extends base.pug
+extends base
 
 block content 
-    h1 Watch Video
+    h3 #{video.views} #{video.views === 1 ? "view" : "views"}
+    a(href="edit") Edit Video &rarr; 
+
+    // * relative url : edit <- current page + /edit
+    // ex) localhost:4000/profile/edit-profile/password
+    // ===> a(href="photo")
+    // localhost:4000/profile/edit-profile/photo
+
+    // * absolute url : /edit <- root url + /edit
+    // ===> a(href="/photo")
+    // localhost:4000/photo
