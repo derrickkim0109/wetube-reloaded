@@ -10,7 +10,7 @@
     "Wetube"
   ],
   "scripts": {
-    "dev": "nodemon --exec babel-node src/server.js"
+    "dev": "nodemon --exec babel-node src/init.js"
   },
   "author": "Derrick Kim <super-kill@naver.com>",
   "license": "MIT",
@@ -20,6 +20,7 @@
   "homepage": "https://github.com/thlbyl0109/wetube-reloaded#readme",
   "dependencies": {
     "express": "^4.17.2",
+    "mongoose": "^6.1.6",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.15",
     "pug": "^3.0.2"
