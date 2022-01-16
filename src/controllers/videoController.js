@@ -1,12 +1,5 @@
 import Video from "../models/Video"; 
 
-/*
-
-Video.find( {}, (error, videos) => {
-return res.render("home", {pageTitle: "Home", videos: [] });
-});
-
-*/
 export const home = async(req, res) => {
     const videos = await Video.find({});
     return res.render("home", {pageTitle: "Home", videos});
@@ -15,19 +8,36 @@ export const home = async(req, res) => {
 export const watch = async(req, res) => {
     const { id } = req.params;
     const video = await Video.findById(id);
-
-    return res.render("watch", {pageTitle: video.title, video});
+    if (!video) {
+        return res.render("404", { pageTitle: "Video not found." });
+    }
+    return res.render("watch", { pageTitle: video.title, video } );
 }; 
 
-export const getEdit = (req, res) => {
+export const getEdit = async(req, res) => {
     const { id } = req.params;
     // const id = req.params.id; 
-    res.render("edit", {pageTitle: `Editing:`});
+    const video = await Video.findById(id); // Because I send the video object to the base.pug for rendering video
+    if (!video) {
+        return res.render("404", { pageTitle: "Video not found." });
+    } 
+    return res.render("edit", {pageTitle: `Edit ${video.title}`, video});
 };
 
-export const postEdit = (req, res) => {
+export const postEdit = async(req, res) => {
     const { id } = req.params;
-    const { title } = req.body;
+    const { title, description, hashtags } = req.body;
+
+    const video = await Video.exists({ _id: id }); // search by ID
+    if (!video) {
+        return res.render("404", { pageTitle: "Video not found." });
+    } 
+    await Video.findByIdAndUpdate(id, {
+        title: title,
+        description: description,
+        hashtags: Video.formatHashtags(hashtags),
+    })
+
     return res.redirect(`/videos/${id}`);
 };
 // export default trending;
@@ -44,7 +54,7 @@ export const postUpload = async(req, res) => {
         await Video.create({
             title: title,
             description: description,
-            hashtags: hashtags.split(",").map(word => `${word}`),
+            hashtags: Video.formatHashtags(hashtags),
         });
         return res.redirect("/");
     } catch (error) {
