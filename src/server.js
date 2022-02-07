@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import session from "express-session"; // before our routers
+import MongoStore from "connect-mongo";
 import rootRouter from "./routers/rootRouter";
 import userRouter from "./routers/userRouter";
 import videoRouter from "./routers/videoRouter";
@@ -20,9 +21,13 @@ app.use(express.urlencoded({extended:true}));
 // Session middle ware is going to start to  remember every body that comes to our web site 
 app.use(
     session({
-        secret: "Hello!",
-        resave: true,
-        saveUninitialized: true, 
+        secret: process.env.COOKIE_SECRET,
+        resave: false,
+        saveUninitialized: false , 
+        cookie: {
+            maxAge: 20000,
+        },
+        store: MongoStore.create({ mongoUrl: process.env.DB_URL }),
     })
 )
 
