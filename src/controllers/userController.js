@@ -1,5 +1,6 @@
 import User from "../models/User";
 import bcrypt from "bcrypt"; 
+import res from "express/lib/response";
 
 export const getJoin = (req, res) => res.render("join", { pageTitle: "Join" });
 export const postJoin = async (req, res) => {
@@ -54,11 +55,45 @@ export const postLogin  = async(req, res) => {
         return res.status(400).render("login", { 
             pageTitle,
             errorMessage : "Wrong password. "})
-    }
+    };
     
     req.session.loggedIn = true;
     req.session.user = user;
     return res.redirect("/");
+}
+
+//  https://github.com/login/oauth/authorize?client_id=6553150144d8ee62b23f&allow_signup=false&scope=user:email
+export const startGithubLogin = (req, res) => {
+  const baseUrl = `https://github.com/login/oauth/authorize`
+  const config = {
+    cliend_id: process.env.GH_CLIENT,
+    allow_signup : false,
+    scope: "read:user user:email",
+  };
+  const params = new URLSearchParams(config).toString();
+
+  const finalUrl = `${baseUrl}?${params}`;
+  return res.redirect(finalUrl);
+}
+
+export const finishGithubLogin = (req, res) => {
+  const baseUrl = "https://github.com/login/oauth/access_token";
+  const config = {
+    client_id: process.env.GH_CLIENT,
+    client_secret: process.env.GH_SECRET,
+    code: req.query.code,
+  };
+  
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+  const data = await fetch(finalUrl, {
+    method: "POST",
+    headers: {
+      Accept: application/json,
+    },
+  });
+  const json = await data.json();
+  console.log(json);
 }
 
 export const edit = (req, res) => res.send("Edit User");
